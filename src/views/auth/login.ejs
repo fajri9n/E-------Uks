@@ -70,8 +70,41 @@
       </button>
     </form>
 
+    <!-- Fast Account Switcher for Evaluators -->
+    <div class="mt-8 pt-6 border-t border-slate-100">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Quick Switch Akun Demo</span>
+        <span class="text-[11px] bg-slate-100 text-slate-600 font-semibold px-2 py-0.5 rounded-full">Pass: password123</span>
+      </div>
+
+      <div class="grid grid-cols-3 gap-2">
+        <button type="button" onclick="fillAccount('adminuks', 'password123')"
+          class="p-2.5 rounded-xl border border-purple-200 bg-purple-50/50 hover:bg-purple-100 text-purple-700 text-xs font-semibold text-center transition flex flex-col items-center gap-1">
+          <i data-lucide="shield-check" class="w-4 h-4"></i>
+          <span>Admin UKS</span>
+        </button>
+
+        <button type="button" onclick="fillAccount('petugasuks', 'password123')"
+          class="p-2.5 rounded-xl border border-emerald-200 bg-emerald-50/50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold text-center transition flex flex-col items-center gap-1">
+          <i data-lucide="user-check" class="w-4 h-4"></i>
+          <span>Petugas UKS</span>
+        </button>
+
+        <button type="button" onclick="fillAccount('siswa', 'password123')"
+          class="p-2.5 rounded-xl border border-blue-200 bg-blue-50/50 hover:bg-blue-100 text-blue-700 text-xs font-semibold text-center transition flex flex-col items-center gap-1">
+          <i data-lucide="graduation-cap" class="w-4 h-4"></i>
+          <span>Siswa</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
     lucide.createIcons();
+    function fillAccount(user, pass) {
+      document.getElementById('usernameInput').value = user;
+      document.getElementById('passwordInput').value = pass;
+    }
   </script>
 </body>
 </html>
