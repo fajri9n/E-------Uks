@@ -1,0 +1,24 @@
+{
+  "name": "e-uks-rekam-medis",
+  "version": "1.0.0",
+  "description": "Sistem Informasi UKS & Rekam Medis Siswa (E-UKS)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "prisma:generate": "prisma generate",
+    "prisma:db:push": "prisma db push",
+    "seed": "node prisma/seed.js"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.4.1",
+    "bcryptjs": "^3.0.2",
+    "dotenv": "^16.4.7",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "express-session": "^1.18.1"
+  },
+  "devDependencies": {
+    "prisma": "^6.4.1"
+  }
+}

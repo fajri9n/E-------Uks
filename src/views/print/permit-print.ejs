@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white !important; padding: 0 !important; }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 min-h-screen p-4 sm:p-8 flex flex-col items-center justify-center">
+
+  <!-- Print Button Bar -->
+  <div class="no-print max-w-2xl w-full mb-4 flex justify-between items-center">
+    <button onclick="window.history.back()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold rounded-xl transition">
+      &larr; Kembali
+    </button>
+    <button onclick="window.print()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-lg transition flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+      <span>Cetak Surat (Print / PDF)</span>
+    </button>
+  </div>
+
+  <!-- Formal Kop & Surat Container -->
+  <div class="max-w-2xl w-full bg-white border border-slate-300 shadow-xl p-8 rounded-2xl print:shadow-none print:border-none">
+    
+    <!-- Kop Surat Sekolah -->
+    <div class="border-b-2 border-slate-800 pb-4 mb-6 text-center">
+      <h2 class="text-xs font-bold uppercase tracking-widest text-slate-500">PEMERINTAH KOTA / KABUPATEN - DINAS PENDIDIKAN</h2>
+      <h1 class="text-xl font-extrabold uppercase text-slate-900 tracking-wide mt-1">SMK / SMA NEGERI UNGGULAN SEKOLAH</h1>
+      <h3 class="text-sm font-bold text-emerald-700 uppercase tracking-wider mt-0.5">LAYANAN USAHA KESEHATAN SEKOLAH (UKS) & PMR</h3>
+      <p class="text-[11px] text-slate-500 mt-1">Jl. Pendidikan No. 100 Telp. (021) 555-0123 Kode Pos 12345</p>
+    </div>
+
+    <!-- Judul Surat -->
+    <div class="text-center mb-6">
+      <h2 class="text-base font-bold uppercase tracking-wider text-slate-900 underline">
+        <%= record.status === 'PULANG' ? 'SURAT IZIN PULANG / ISTIRAHAT DIGITAL' : 'SURAT RUJUKAN KESEHATAN PUSKESMAS' %>
+      </h2>
+      <p class="text-xs text-slate-500 font-mono mt-0.5">Nomor: UKS/SRT-IZIN/<%= record.id %>/<%= new Date().getFullYear() %></p>
+    </div>
+
+    <!-- Isi Surat -->
+    <div class="space-y-4 text-xs text-slate-800 leading-relaxed">
+      <p>Yang bertanda tangan di bawah ini Petugas Jaga Ruang Usaha Kesehatan Sekolah (UKS), menerangkan bahwa siswa berikut:</p>
+
+      <!-- Identitas Siswa -->
+      <table class="w-full text-xs font-medium ml-2">
+        <tr>
+          <td class="w-36 py-1 text-slate-600">Nama Siswa</td>
+          <td class="w-4 py-1">:</td>
+          <td class="py-1 font-bold text-slate-900"><%= record.student.nama %></td>
+        </tr>
+        <tr>
+          <td class="py-1 text-slate-600">NISN</td>
+          <td class="py-1">:</td>
+          <td class="py-1"><%= record.student.nisn || '-' %></td>
+        </tr>
+        <tr>
+          <td class="py-1 text-slate-600">Golongan Darah</td>
+          <td class="py-1">:</td>
+          <td class="py-1"><%= record.student.golonganDarah || '-' %></td>
+        </tr>
+        <tr>
+          <td class="py-1 text-slate-600">Riwayat Alergi Obat</td>
+          <td class="py-1">:</td>
+          <td class="py-1 text-rose-700 font-bold"><%= record.student.healthProfile ? (record.student.healthProfile.alergiObat || 'Tidak ada') : 'Tidak ada' %></td>
+        </tr>
+      </table>
+
+      <!-- Hasil Pemeriksaan & Keluhan -->
+      <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
+        <p class="font-bold text-slate-900">Hasil Pemeriksaan Kesehatan:</p>
+        <p><span class="font-semibold text-slate-700">Tanggal Kunjungan:</span> <%= new Date(record.tglKunjungan).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) %></p>
+        <p><span class="font-semibold text-slate-700">Waktu Masuk UKS:</span> <%= record.jamMasuk %> WIB <% if (record.jamKeluar) { %> | Waktu Keluar: <%= record.jamKeluar %> WIB <% } %></p>
+        <p><span class="font-semibold text-slate-700">Keluhan / Gejala:</span> <%= record.keluhan %></p>
+        <p><span class="font-semibold text-slate-700">Tanda Vital:</span> Suhu Tubuh: <%= record.suhuTubuh || '-' %>°C | Tensi: <%= record.tensi || '-' %></p>
+        <p><span class="font-semibold text-slate-700">Tindakan Medis P3K:</span> <%= record.tindakan || '-' %></p>
+      </div>
+
+      <!-- Resep Obat yang Diberikan -->
+      <% if (record.prescriptions && record.prescriptions.length > 0) { %>
+        <div>
+          <p class="font-bold text-slate-900 mb-1">Obat Pertolongan Pertama Yang Telah Diberikan:</p>
+          <ul class="list-disc list-inside space-y-0.5 text-slate-700">
+            <% record.prescriptions.forEach(p => { %>
+              <li><strong class="text-slate-900"><%= p.medicine.namaObat %></strong> (<%= p.jumlah %> <%= p.medicine.satuan %>) - <em><%= p.dosis %></em></li>
+            <% }); %>
+          </ul>
+        </div>
+      <% } %>
+
+      <!-- Keputusan & Catatan Khusus -->
+      <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl space-y-1">
+        <p class="font-bold text-emerald-900">Keputusan & Instruksi UKS:</p>
+        <p class="text-slate-800"><%= record.catatanSurat || 'Siswa diberikan izin untuk beristirahat di rumah / dirujuk ke fasilitas kesehatan demi pemulihan kesehatan.' %></p>
+      </div>
+
+      <p class="pt-2">Demikian surat izin ini diterbitkan secara digital untuk dipergunakan sebagaimana mestinya oleh Guru Piket, Wali Kelas, dan Orang Tua/Wali murid.</p>
+    </div>
+
+    <!-- Tanda Tangan Resmi -->
+    <div class="mt-10 grid grid-cols-2 text-center text-xs">
+      <div>
+        <p class="text-slate-500">Mengetahui,</p>
+        <p class="font-bold text-slate-900">Pembina UKS / Manajemen Sekolah</p>
+        <div class="h-16"></div>
+        <p class="font-bold text-slate-900 underline">Drs. H. Ahmad Pembina, M.Pd</p>
+        <p class="text-[10px] text-slate-500">NIP. 19780115 200501 1 002</p>
+      </div>
+
+      <div>
+        <p class="text-slate-500">Kota Sekolah, <%= new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) %></p>
+        <p class="font-bold text-slate-900">Petugas Kesehatan UKS</p>
+        <div class="h-16"></div>
+        <p class="font-bold text-slate-900 underline"><%= record.petugas.nama %></p>
+        <p class="text-[10px] text-slate-500">Petugas / Tim Kesehatan PMR</p>
+      </div>
+    </div>
+
+    <!-- Verification QR footer mock -->
+    <div class="mt-8 pt-4 border-t border-slate-200 flex items-center justify-between text-[10px] text-slate-400 font-mono">
+      <span>Dokumen Resmi E-UKS Digital Sekolah</span>
+      <span>ID Verifikasi: EUKS-PERMIT-<%= record.id %>-OK</span>
+    </div>
+
+  </div>
+</body>
+</html>

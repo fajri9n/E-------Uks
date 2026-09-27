@@ -1,0 +1,146 @@
+<%- include('../layouts/header') %>
+<%- include('../layouts/sidebar') %>
+
+<div class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+  <%- include('../layouts/topbar') %>
+
+  <main class="p-6 space-y-6">
+    <div>
+      <h2 class="text-xl font-bold text-slate-800">Monitoring Kadaluarsa & Ambang Batas Stok Obat</h2>
+      <p class="text-xs text-slate-500">Peringatan otomatis obat yang menipis (≤ 10 item) atau sudah melewati batas tanggal expired</p>
+    </div>
+
+    <!-- Alert Cards Summary -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div class="bg-rose-50 p-5 rounded-2xl border border-rose-200/80 shadow-sm flex items-center justify-between">
+        <div>
+          <span class="text-xs font-bold text-rose-700 uppercase tracking-wider">Sudah Kadaluarsa</span>
+          <h3 class="text-2xl font-bold text-rose-800 mt-1"><%= expiredMedicines.length %> Item</h3>
+          <p class="text-[11px] text-rose-600 mt-1">Harus segera ditarik dari rak UKS</p>
+        </div>
+        <div class="w-12 h-12 bg-rose-200/60 text-rose-700 rounded-2xl flex items-center justify-center">
+          <i data-lucide="shield-alert" class="w-6 h-6"></i>
+        </div>
+      </div>
+
+      <div class="bg-amber-50 p-5 rounded-2xl border border-amber-200/80 shadow-sm flex items-center justify-between">
+        <div>
+          <span class="text-xs font-bold text-amber-700 uppercase tracking-wider">Expired Dalam 30 Hari</span>
+          <h3 class="text-2xl font-bold text-amber-800 mt-1"><%= expiringSoonMedicines.length %> Item</h3>
+          <p class="text-[11px] text-amber-600 mt-1">Prioritaskan penggunaan / penggantian</p>
+        </div>
+        <div class="w-12 h-12 bg-amber-200/60 text-amber-700 rounded-2xl flex items-center justify-center">
+          <i data-lucide="clock" class="w-6 h-6"></i>
+        </div>
+      </div>
+
+      <div class="bg-purple-50 p-5 rounded-2xl border border-purple-200/80 shadow-sm flex items-center justify-between">
+        <div>
+          <span class="text-xs font-bold text-purple-700 uppercase tracking-wider">Stok Menipis (≤ 10)</span>
+          <h3 class="text-2xl font-bold text-purple-800 mt-1"><%= lowStockMedicines.length %> Item</h3>
+          <p class="text-[11px] text-purple-600 mt-1">Lakukan pengadaan ulang (restok)</p>
+        </div>
+        <div class="w-12 h-12 bg-purple-200/60 text-purple-700 rounded-2xl flex items-center justify-center">
+          <i data-lucide="package-minus" class="w-6 h-6"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 1: Sudah Kadaluarsa -->
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+      <div class="p-4 bg-rose-500/10 border-b border-rose-200 flex items-center justify-between">
+        <h3 class="text-sm font-bold text-rose-800 flex items-center gap-2">
+          <i data-lucide="alert-circle" class="w-4 h-4 text-rose-600"></i>
+          Daftar Obat Kadaluarsa (EXPIRED)
+        </h3>
+        <span class="text-xs font-bold bg-rose-200 text-rose-800 px-2.5 py-0.5 rounded-full"><%= expiredMedicines.length %> Item</span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-100 text-[11px] font-bold text-slate-400 uppercase">
+              <th class="py-3 px-4">Nama Obat</th>
+              <th class="py-3 px-4">Kategori</th>
+              <th class="py-3 px-4 text-center">Stok</th>
+              <th class="py-3 px-4">Tgl Expired</th>
+              <th class="py-3 px-4 text-right">Aksi Restok</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-xs">
+            <% if (expiredMedicines.length === 0) { %>
+              <tr>
+                <td colspan="5" class="py-6 text-center text-slate-400">Aman! Tidak ada obat yang kadaluarsa saat ini.</td>
+              </tr>
+            <% } else { %>
+              <% expiredMedicines.forEach(med => { %>
+                <tr class="hover:bg-rose-50/30 transition">
+                  <td class="py-3 px-4 font-bold text-slate-800"><%= med.namaObat %></td>
+                  <td class="py-3 px-4 text-slate-600"><%= med.kategori %></td>
+                  <td class="py-3 px-4 text-center font-bold text-slate-800"><%= med.stok %> <%= med.satuan %></td>
+                  <td class="py-3 px-4 font-bold text-rose-600">
+                    <%= new Date(med.tglKadaluarsa).toLocaleDateString('id-ID') %>
+                  </td>
+                  <td class="py-3 px-4 text-right">
+                    <a href="/admin/medicines/<%= med.id %>/edit" class="px-3 py-1 bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-semibold rounded-lg transition">
+                      Update Tgl Expired & Restok
+                    </a>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Section 2: Stok Menipis -->
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+      <div class="p-4 bg-purple-500/10 border-b border-purple-200 flex items-center justify-between">
+        <h3 class="text-sm font-bold text-purple-800 flex items-center gap-2">
+          <i data-lucide="package-minus" class="w-4 h-4 text-purple-600"></i>
+          Daftar Obat Kritis / Stok Menipis (≤ 10 Unit)
+        </h3>
+        <span class="text-xs font-bold bg-purple-200 text-purple-800 px-2.5 py-0.5 rounded-full"><%= lowStockMedicines.length %> Item</span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-100 text-[11px] font-bold text-slate-400 uppercase">
+              <th class="py-3 px-4">Nama Obat</th>
+              <th class="py-3 px-4">Kategori</th>
+              <th class="py-3 px-4 text-center">Sisa Stok</th>
+              <th class="py-3 px-4">Satuan</th>
+              <th class="py-3 px-4 text-right">Aksi Restok</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-xs">
+            <% if (lowStockMedicines.length === 0) { %>
+              <tr>
+                <td colspan="5" class="py-6 text-center text-slate-400">Seluruh stok obat dalam kondisi mencukupi.</td>
+              </tr>
+            <% } else { %>
+              <% lowStockMedicines.forEach(med => { %>
+                <tr class="hover:bg-purple-50/30 transition">
+                  <td class="py-3 px-4 font-bold text-slate-800"><%= med.namaObat %></td>
+                  <td class="py-3 px-4 text-slate-600"><%= med.kategori %></td>
+                  <td class="py-3 px-4 text-center font-bold text-rose-600"><%= med.stok %></td>
+                  <td class="py-3 px-4 text-slate-600"><%= med.satuan %></td>
+                  <td class="py-3 px-4 text-right">
+                    <a href="/admin/medicines/<%= med.id %>/edit" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-semibold rounded-lg transition">
+                      Tambah Stok Obat
+                    </a>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<%- include('../layouts/footer') %>

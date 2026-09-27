@@ -1,0 +1,148 @@
+<%- include('../layouts/header') %>
+<%- include('../layouts/sidebar') %>
+
+<div class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+  <%- include('../layouts/topbar') %>
+
+  <main class="p-6 space-y-6">
+    <!-- Header & Print Trigger -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <h2 class="text-xl font-bold text-slate-800">Laporan Rekapitulasi Kunjungan UKS Bulanan</h2>
+        <p class="text-xs text-slate-500">Laporan resmi rekam medis kunjungan siswa untuk pihak manajemen sekolah dan Puskesmas</p>
+      </div>
+
+      <a href="/petugas/reports/print?month=<%= month %>&year=<%= year %>" target="_blank"
+        class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-xl shadow transition">
+        <i data-lucide="printer" class="w-4 h-4"></i>
+        <span>Cetak Laporan Resmi (PDF/Print)</span>
+      </a>
+    </div>
+
+    <!-- Month & Year Selector -->
+    <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
+      <form action="/petugas/reports" method="GET" class="flex flex-wrap items-center gap-3">
+        <div class="flex items-center gap-2">
+          <label class="text-xs font-bold text-slate-600">Bulan:</label>
+          <select name="month" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none">
+            <% const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']; %>
+            <% monthNames.forEach((mName, idx) => { %>
+              <option value="<%= idx + 1 %>" <%= (idx + 1) === month ? 'selected' : '' %>><%= mName %></option>
+            <% }); %>
+          </select>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <label class="text-xs font-bold text-slate-600">Tahun:</label>
+          <select name="year" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none">
+            <% for(let y = 2025; y <= 2030; y++) { %>
+              <option value="<%= y %>" <%= y === year ? 'selected' : '' %>><%= y %></option>
+            <% } %>
+          </select>
+        </div>
+
+        <button type="submit" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-xl transition">
+          Tampilkan Laporan
+        </button>
+      </form>
+    </div>
+
+    <!-- Rekap Stats Summary Cards -->
+    <div class="grid grid-cols-2 sm:grid-cols-5 gap-4">
+      <div class="bg-white p-4 rounded-xl border border-slate-200/80 text-center">
+        <span class="text-[10px] font-bold text-slate-400 uppercase">Total Kunjungan</span>
+        <h4 class="text-xl font-bold text-slate-800 mt-1"><%= summary.totalKunjungan %></h4>
+      </div>
+      <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-200/80 text-center">
+        <span class="text-[10px] font-bold text-emerald-700 uppercase">Kembali Kelas</span>
+        <h4 class="text-xl font-bold text-emerald-800 mt-1"><%= summary.countKembali %></h4>
+      </div>
+      <div class="bg-amber-50 p-4 rounded-xl border border-amber-200/80 text-center">
+        <span class="text-[10px] font-bold text-amber-700 uppercase">Dirawat UKS</span>
+        <h4 class="text-xl font-bold text-amber-800 mt-1"><%= summary.countDirawat %></h4>
+      </div>
+      <div class="bg-purple-50 p-4 rounded-xl border border-purple-200/80 text-center">
+        <span class="text-[10px] font-bold text-purple-700 uppercase">Izin Pulang</span>
+        <h4 class="text-xl font-bold text-purple-800 mt-1"><%= summary.countPulang %></h4>
+      </div>
+      <div class="bg-rose-50 p-4 rounded-xl border border-rose-200/80 text-center">
+        <span class="text-[10px] font-bold text-rose-700 uppercase">Dirujuk Faskes</span>
+        <h4 class="text-xl font-bold text-rose-800 mt-1"><%= summary.countDirujuk %></h4>
+      </div>
+    </div>
+
+    <!-- Detailed Table -->
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200/80 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              <th class="py-3.5 px-4 text-center">No</th>
+              <th class="py-3.5 px-4">Tgl & Waktu</th>
+              <th class="py-3.5 px-4">Nama Siswa & NISN</th>
+              <th class="py-3.5 px-4">Keluhan & Suhu</th>
+              <th class="py-3.5 px-4">Tindakan / Pengobatan</th>
+              <th class="py-3.5 px-4 text-center">Status Akhir</th>
+              <th class="py-3.5 px-4">Petugas Medis</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-xs">
+            <% if (visits.length === 0) { %>
+              <tr>
+                <td colspan="7" class="py-8 text-center text-slate-400">Belum ada kunjungan tercatat pada bulan/tahun terpilih.</td>
+              </tr>
+            <% } else { %>
+              <% visits.forEach((v, index) => { %>
+                <tr class="hover:bg-slate-50/80 transition">
+                  <td class="py-3.5 px-4 text-center font-bold text-slate-400"><%= index + 1 %></td>
+                  <td class="py-3.5 px-4 font-medium text-slate-700 whitespace-nowrap">
+                    <%= new Date(v.tglKunjungan).toLocaleDateString('id-ID') %>
+                    <span class="text-slate-400 text-[11px] block"><%= v.jamMasuk %> WIB</span>
+                  </td>
+                  <td class="py-3.5 px-4 font-semibold text-slate-800">
+                    <%= v.student.nama %>
+                    <span class="text-slate-400 text-[11px] block">NISN: <%= v.student.nisn || '-' %></span>
+                  </td>
+                  <td class="py-3.5 px-4">
+                    <p class="text-slate-800"><%= v.keluhan %></p>
+                    <% if (v.suhuTubuh) { %>
+                      <span class="text-[10px] text-slate-500 font-semibold">Suhu: <%= v.suhuTubuh %>°C</span>
+                    <% } %>
+                  </td>
+                  <td class="py-3.5 px-4 text-slate-600">
+                    <p><%= v.tindakan || '-' %></p>
+                    <% if (v.prescriptions && v.prescriptions.length > 0) { %>
+                      <div class="mt-1">
+                        <% v.prescriptions.forEach(p => { %>
+                          <span class="inline-block px-2 py-0.5 bg-slate-100 text-slate-700 rounded text-[10px]">
+                            <%= p.medicine.namaObat %> (<%= p.jumlah %> <%= p.medicine.satuan %>)
+                          </span>
+                        <% }); %>
+                      </div>
+                    <% } %>
+                  </td>
+                  <td class="py-3.5 px-4 text-center whitespace-nowrap">
+                    <% if (v.status === 'DIRAWAT') { %>
+                      <span class="px-2 py-0.5 bg-amber-100 text-amber-800 rounded font-semibold text-[10px]">DIRAWAT</span>
+                    <% } else if (v.status === 'KEMBALI_KELAS') { %>
+                      <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-semibold text-[10px]">KEMBALI KELAS</span>
+                    <% } else if (v.status === 'PULANG') { %>
+                      <span class="px-2 py-0.5 bg-purple-100 text-purple-800 rounded font-semibold text-[10px]">PULANG</span>
+                    <% } else { %>
+                      <span class="px-2 py-0.5 bg-rose-100 text-rose-800 rounded font-semibold text-[10px]">DIRUJUK</span>
+                    <% } %>
+                  </td>
+                  <td class="py-3.5 px-4 text-slate-600 whitespace-nowrap">
+                    <%= v.petugas.nama %>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<%- include('../layouts/footer') %>

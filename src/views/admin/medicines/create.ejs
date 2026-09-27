@@ -1,0 +1,77 @@
+<%- include('../../layouts/header') %>
+<%- include('../../layouts/sidebar') %>
+
+<div class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+  <%- include('../../layouts/topbar') %>
+
+  <main class="p-6 max-w-2xl mx-auto w-full space-y-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h2 class="text-xl font-bold text-slate-800">Tambah Obat / Alat P3K Baru</h2>
+        <p class="text-xs text-slate-500">Isi formulir untuk menambahkan item obat ke dalam sistem</p>
+      </div>
+      <a href="/admin/medicines" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-xs rounded-xl transition">
+        &larr; Kembali
+      </a>
+    </div>
+
+    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+      <form action="/admin/medicines/create" method="POST" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Nama Obat / Alat</label>
+          <input type="text" name="namaObat" required placeholder="Contoh: Paracetamol 500mg"
+            class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/30">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Kategori</label>
+            <select name="kategori" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/30">
+              <option value="TABLET">TABLET</option>
+              <option value="SIRUP">SIRUP</option>
+              <option value="SALEP">SALEP</option>
+              <option value="ALAT">ALAT P3K</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Satuan</label>
+            <input type="text" name="satuan" required placeholder="Tablet / Botol / Tube / Roll"
+              class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/30">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Jumlah Stok</label>
+            <input type="number" name="stok" min="0" required placeholder="100"
+              class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/30">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Tanggal Kadaluarsa</label>
+            <input type="date" name="tglKadaluarsa" required
+              class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/30">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Aturan Pakai / Petunjuk</label>
+          <textarea name="aturanPakai" rows="3" required placeholder="Contoh: 3x1 tablet diminum sesudah makan"
+            class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/30"></textarea>
+        </div>
+
+        <div class="pt-4 flex justify-end gap-3">
+          <a href="/admin/medicines" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition">
+            Batal
+          </a>
+          <button type="submit" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-xl shadow-md transition">
+            Simpan Obat
+          </button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+
+<%- include('../../layouts/footer') %>

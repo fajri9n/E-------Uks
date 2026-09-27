@@ -1,0 +1,73 @@
+<%- include('../layouts/header') %>
+<%- include('../layouts/sidebar') %>
+
+<div class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+  <%- include('../layouts/topbar') %>
+
+  <main class="p-6 max-w-2xl mx-auto w-full space-y-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h2 class="text-xl font-bold text-slate-800">Riwayat Alergi & Penyakit Bawaan Siswa</h2>
+        <p class="text-xs text-slate-500">Perbarui riwayat kesehatan agar petugas UKS mengetahui alergi obat saat menangani pingsan/demam</p>
+      </div>
+      <a href="/siswa/dashboard" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-xs rounded-xl transition">
+        &larr; Kembali
+      </a>
+    </div>
+
+    <% if (success) { %>
+      <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center gap-3 text-emerald-800 text-sm">
+        <i data-lucide="check-circle" class="w-5 h-5 flex-shrink-0 text-emerald-600"></i>
+        <span><%= success %></span>
+      </div>
+    <% } %>
+
+    <% if (error) { %>
+      <div class="p-4 bg-rose-50 border border-rose-200 rounded-2xl flex items-center gap-3 text-rose-800 text-sm">
+        <i data-lucide="alert-circle" class="w-5 h-5 flex-shrink-0 text-rose-600"></i>
+        <span><%= error %></span>
+      </div>
+    <% } %>
+
+    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+      <form action="/siswa/health-profile" method="POST" class="space-y-4">
+        
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Riwayat Penyakit Bawaan</label>
+          <textarea name="riwayatPenyakit" rows="2" placeholder="Contoh: Asma, Vertigo, Maag Akut, Diabetes Anak"
+            class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/30"><%= profile ? profile.riwayatPenyakit : '' %></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-rose-700 uppercase tracking-wider mb-1">⚠ Riwayat Alergi Obat-Obatan * (Sangat Penting!)</label>
+          <textarea name="alergiObat" rows="2" placeholder="Contoh: Penisilin, Paracetamol, Amoxicillin, Ibuprofen (Tulis 'Tidak Ada' bila tidak alergi)"
+            class="w-full px-4 py-2.5 bg-rose-50/50 border border-rose-200 rounded-xl text-xs font-semibold text-rose-900 focus:outline-none focus:ring-2 focus:ring-rose-500/30"><%= profile ? profile.alergiObat : '' %></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Riwayat Alergi Makanan / Debu / Lingkungan</label>
+          <textarea name="alergiMakanan" rows="2" placeholder="Contoh: Udang, Seafood, Kacang, Dingin, Debu"
+            class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/30"><%= profile ? profile.alergiMakanan : '' %></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Kontak Darurat Orang Tua / Wali *</label>
+          <input type="text" name="kontakDarurat" value="<%= profile ? (profile.kontakDarurat || user.teleponOrtu) : user.teleponOrtu %>" placeholder="Contoh: Bpk. Santoso (Ayah) - 08123456789"
+            class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/30">
+        </div>
+
+        <div class="pt-4 flex justify-end gap-3">
+          <a href="/siswa/dashboard" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition">
+            Batal
+          </a>
+          <button type="submit" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-xl shadow-md transition">
+            Simpan Informasi Kesehatan
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </main>
+</div>
+
+<%- include('../layouts/footer') %>

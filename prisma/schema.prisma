@@ -1,0 +1,85 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                      Int             @id @default(autoincrement())
+  username                String          @unique
+  password                String
+  nama                    String
+  role                    String          // ADMIN_UKS, PETUGAS_UKS, SISWA
+  nisn                    String?         @unique
+  teleponOrtu             String?
+  golonganDarah           String?
+  createdAt               DateTime        @default(now())
+  updatedAt               DateTime        @updatedAt
+
+  healthProfile           HealthProfile?
+  medicalRecordsAsStudent MedicalRecord[] @relation("StudentMedicalRecords")
+  medicalRecordsAsPetugas MedicalRecord[] @relation("PetugasMedicalRecords")
+}
+
+model Medicine {
+  id            Int                    @id @default(autoincrement())
+  namaObat      String
+  kategori      String                 // TABLET, SIRUP, SALEP, ALAT
+  stok          Int                    @default(0)
+  satuan        String                 // Botol, Tablet, Tube, Roll, Box, etc.
+  tglKadaluarsa DateTime
+  aturanPakai   String
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+
+  prescriptions MedicinePrescription[]
+}
+
+model MedicalRecord {
+  id           Int                    @id @default(autoincrement())
+  studentId    Int
+  petugasId    Int
+  tglKunjungan DateTime               @default(now())
+  jamMasuk     String
+  jamKeluar    String?
+  keluhan      String
+  suhuTubuh    Float?
+  tensi        String?
+  tindakan     String?
+  status       String                 // DIRAWAT, KEMBALI_KELAS, PULANG, DIRUJUK
+  catatanSurat String?                // Alasan izin / rujukan / instruksi istirahat
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+
+  student      User                   @relation("StudentMedicalRecords", fields: [studentId], references: [id], onDelete: Cascade)
+  petugas      User                   @relation("PetugasMedicalRecords", fields: [petugasId], references: [id], onDelete: Cascade)
+  prescriptions MedicinePrescription[]
+}
+
+model MedicinePrescription {
+  id              Int           @id @default(autoincrement())
+  medicalRecordId Int
+  medicineId      Int
+  jumlah          Int           @default(1)
+  dosis           String
+  createdAt       DateTime      @default(now())
+
+  medicalRecord   MedicalRecord @relation(fields: [medicalRecordId], references: [id], onDelete: Cascade)
+  medicine        Medicine      @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+}
+
+model HealthProfile {
+  id              Int      @id @default(autoincrement())
+  studentId       Int      @unique
+  riwayatPenyakit String?
+  alergiObat      String?
+  alergiMakanan   String?
+  kontakDarurat   String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  student         User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+}

@@ -1,0 +1,176 @@
+<%- include('../layouts/header') %>
+<%- include('../layouts/sidebar') %>
+
+<div class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+  <%- include('../layouts/topbar') %>
+
+  <main class="p-6 space-y-6">
+    <!-- Stat Cards Overview -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      
+      <!-- Total Medicine Stock -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Jenis Obat / P3K</p>
+          <h3 class="text-2xl font-bold text-slate-800 mt-1"><%= stats.totalMedicines %> Item</h3>
+          <p class="text-xs text-slate-500 mt-1">Tersimpan di inventaris UKS</p>
+        </div>
+        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center">
+          <i data-lucide="pill" class="w-6 h-6"></i>
+        </div>
+      </div>
+
+      <!-- Low Stock Warning -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Stok Menipis (≤ 10)</p>
+          <h3 class="text-2xl font-bold <%= stats.lowStockCount > 0 ? 'text-amber-600' : 'text-slate-800' %> mt-1">
+            <%= stats.lowStockCount %> Item
+          </h3>
+          <p class="text-xs text-amber-600 font-medium mt-1">Perlu reorder / restok</p>
+        </div>
+        <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center">
+          <i data-lucide="alert-circle" class="w-6 h-6"></i>
+        </div>
+      </div>
+
+      <!-- Expired Medicine Warning -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Obat Expired / Kadaluarsa</p>
+          <h3 class="text-2xl font-bold <%= stats.expiredCount > 0 ? 'text-rose-600' : 'text-slate-800' %> mt-1">
+            <%= stats.expiredCount %> Item
+          </h3>
+          <p class="text-xs text-rose-600 font-medium mt-1">Jangan diberikan ke siswa</p>
+        </div>
+        <div class="w-12 h-12 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center">
+          <i data-lucide="calendar-x" class="w-6 h-6"></i>
+        </div>
+      </div>
+
+      <!-- Total Visits -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Kunjungan UKS</p>
+          <h3 class="text-2xl font-bold text-emerald-600 mt-1"><%= stats.totalVisits %> Kunjungan</h3>
+          <p class="text-xs text-emerald-600 font-medium mt-1"><%= stats.visitsToday %> kunjungan hari ini</p>
+        </div>
+        <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center">
+          <i data-lucide="activity" class="w-6 h-6"></i>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Analytics Dashboard & Breakdown -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- Breakdown Status Kunjungan -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm lg:col-span-1 flex flex-col justify-between">
+        <div>
+          <h3 class="text-base font-bold text-slate-800 mb-1">Analitik Status Pasien UKS</h3>
+          <p class="text-xs text-slate-500 mb-5">Distribusi keputusan penanganan medis siswa</p>
+
+          <div class="space-y-3">
+            <% statusCounts.forEach(sc => { %>
+              <div>
+                <div class="flex justify-between items-center text-xs font-semibold mb-1">
+                  <span class="flex items-center gap-2">
+                    <% if (sc.status === 'DIRAWAT') { %>
+                      <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Dirawat di Bed UKS
+                    <% } else if (sc.status === 'KEMBALI_KELAS') { %>
+                      <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Kembali ke Kelas
+                    <% } else if (sc.status === 'PULANG') { %>
+                      <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span> Izin Pulang ke Rumah
+                    <% } else { %>
+                      <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Dirujuk ke Puskesmas/RS
+                    <% } %>
+                  </span>
+                  <span class="text-slate-700 font-bold"><%= sc._count.id %> kasus</span>
+                </div>
+                <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                  <div class="h-full rounded-full 
+                    <% if (sc.status === 'DIRAWAT') { %> bg-amber-500 <% } else if (sc.status === 'KEMBALI_KELAS') { %> bg-emerald-500 <% } else if (sc.status === 'PULANG') { %> bg-purple-500 <% } else { %> bg-rose-500 <% } %>"
+                    style="width: <%= Math.min(100, Math.round((sc._count.id / (stats.totalVisits || 1)) * 100)) %>%">
+                  </div>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+        </div>
+
+        <div class="mt-6 pt-4 border-t border-slate-100 flex justify-between items-center">
+          <span class="text-xs text-slate-500">Berdasarkan data operasional</span>
+          <a href="/admin/stock-alerts" class="text-xs font-semibold text-emerald-600 hover:text-emerald-700">Cek Alert Stok &rarr;</a>
+        </div>
+      </div>
+
+      <!-- Audit Operasional UKS Terbaru -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm lg:col-span-2">
+        <div class="flex justify-between items-center mb-4">
+          <div>
+            <h3 class="text-base font-bold text-slate-800">Audit Kunjungan Medis Terbaru</h3>
+            <p class="text-xs text-slate-500">Log transaksi pelayanan siswa sakit di UKS</p>
+          </div>
+          <a href="/admin/medicines" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition">
+            Kelola Stok Obat
+          </a>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-slate-100 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                <th class="py-3 px-3">Tanggal & Jam</th>
+                <th class="py-3 px-3">Nama Siswa</th>
+                <th class="py-3 px-3">Keluhan</th>
+                <th class="py-3 px-3">Petugas Jaga</th>
+                <th class="py-3 px-3 text-center">Status</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-xs">
+              <% if (recentVisits.length === 0) { %>
+                <tr>
+                  <td colspan="5" class="py-6 text-center text-slate-400">Belum ada catatan kunjungan UKS.</td>
+                </tr>
+              <% } else { %>
+                <% recentVisits.forEach(visit => { %>
+                  <tr class="hover:bg-slate-50/80 transition">
+                    <td class="py-3.5 px-3 font-medium text-slate-700 whitespace-nowrap">
+                      <%= new Date(visit.tglKunjungan).toLocaleDateString('id-ID') %>
+                      <span class="text-slate-400 text-[11px] block"><%= visit.jamMasuk %> WIB</span>
+                    </td>
+                    <td class="py-3.5 px-3 font-semibold text-slate-800">
+                      <%= visit.student.nama %>
+                      <span class="text-slate-400 text-[11px] block">NISN: <%= visit.student.nisn || '-' %></span>
+                    </td>
+                    <td class="py-3.5 px-3 text-slate-600 max-w-xs truncate">
+                      <%= visit.keluhan %>
+                    </td>
+                    <td class="py-3.5 px-3 text-slate-600 whitespace-nowrap">
+                      <%= visit.petugas.nama %>
+                    </td>
+                    <td class="py-3.5 px-3 text-center whitespace-nowrap">
+                      <% if (visit.status === 'DIRAWAT') { %>
+                        <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800">Dirawat</span>
+                      <% } else if (visit.status === 'KEMBALI_KELAS') { %>
+                        <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800">Kembali Kelas</span>
+                      <% } else if (visit.status === 'PULANG') { %>
+                        <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-purple-100 text-purple-800">Izin Pulang</span>
+                      <% } else { %>
+                        <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-rose-100 text-rose-800">Dirujuk Faskes</span>
+                      <% } %>
+                    </td>
+                  </tr>
+                <% }); %>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<%- include('../layouts/footer') %>
