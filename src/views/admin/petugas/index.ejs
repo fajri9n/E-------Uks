@@ -1,0 +1,120 @@
+<%- include('../../layouts/header') %>
+<%- include('../../layouts/sidebar') %>
+
+<div class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+  <%- include('../../layouts/topbar') %>
+
+  <main class="p-4 sm:p-6 space-y-4 sm:space-y-6">
+    <!-- Header & Action Button -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <h2 class="text-xl font-bold text-slate-800">Manajemen Akun Petugas UKS</h2>
+        <p class="text-xs text-slate-500">Kelola daftar akun tenaga kesehatan & petugas piket UKS / pengurus PMR</p>
+      </div>
+
+      <a href="/admin/petugas/create"
+        class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold text-xs rounded-xl shadow-md shadow-emerald-600/20 transition">
+        <i data-lucide="user-plus" class="w-4 h-4"></i>
+        <span>Tambah Petugas Baru</span>
+      </a>
+    </div>
+
+    <!-- Alert Notices -->
+    <% if (success) { %>
+      <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center gap-3 text-emerald-800 text-sm">
+        <i data-lucide="check-circle" class="w-5 h-5 flex-shrink-0 text-emerald-600"></i>
+        <span><%= success %></span>
+      </div>
+    <% } %>
+
+    <% if (error) { %>
+      <div class="p-4 bg-rose-50 border border-rose-200 rounded-2xl flex items-center gap-3 text-rose-800 text-sm">
+        <i data-lucide="alert-triangle" class="w-5 h-5 flex-shrink-0 text-rose-600"></i>
+        <span><%= error %></span>
+      </div>
+    <% } %>
+
+    <!-- Filter & Search Bar -->
+    <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
+      <form action="/admin/petugas" method="GET" class="flex flex-col sm:flex-row gap-3">
+        <div class="flex-1 relative">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+          <input type="text" name="search" value="<%= search %>" placeholder="Cari nama, username, atau no. telepon petugas..."
+            class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/30">
+        </div>
+
+        <button type="submit" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-xl transition">
+          Cari
+        </button>
+      </form>
+    </div>
+
+    <!-- Table Petugas -->
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-[650px] text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200/80 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              <th class="py-3.5 px-4">Nama Petugas</th>
+              <th class="py-3.5 px-4">Username</th>
+              <th class="py-3.5 px-4">Kontak / No. Telepon</th>
+              <th class="py-3.5 px-4 text-center">Total Penanganan</th>
+              <th class="py-3.5 px-4">Tgl Terdaftar</th>
+              <th class="py-3.5 px-4 text-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-xs">
+            <% if (petugasList.length === 0) { %>
+              <tr>
+                <td colspan="6" class="py-8 text-center text-slate-400">Belum ada akun petugas UKS yang terdaftar.</td>
+              </tr>
+            <% } else { %>
+              <% petugasList.forEach(p => { %>
+                <tr class="hover:bg-slate-50/70 transition">
+                  <td class="py-3.5 px-4 font-semibold text-slate-800 flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs flex-shrink-0">
+                      <%= p.nama.charAt(0) %>
+                    </div>
+                    <div>
+                      <span><%= p.nama %></span>
+                      <span class="block text-[10px] text-emerald-600 font-medium">Petugas UKS / PMR</span>
+                    </div>
+                  </td>
+                  <td class="py-3.5 px-4 font-mono text-slate-600">@<%= p.username %></td>
+                  <td class="py-3.5 px-4 text-slate-600">
+                    <%= p.teleponOrtu || '-' %>
+                  </td>
+                  <td class="py-3.5 px-4 text-center">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700">
+                      <%= p._count ? p._count.medicalRecordsAsPetugas : 0 %> rekam medis
+                    </span>
+                  </td>
+                  <td class="py-3.5 px-4 text-slate-500">
+                    <%= new Date(p.createdAt).toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric' }) %>
+                  </td>
+                  <td class="py-3.5 px-4 text-center whitespace-nowrap">
+                    <div class="flex items-center justify-center gap-2">
+                      <a href="/admin/petugas/<%= p.id %>/edit" title="Edit Petugas"
+                        class="p-1.5 bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-slate-600 rounded-lg transition">
+                        <i data-lucide="edit-3" class="w-4 h-4"></i>
+                      </a>
+                      <form action="/admin/petugas/<%= p.id %>/delete" method="POST" class="inline"
+                        onsubmit="return confirm('Apakah Anda yakin ingin menghapus akun petugas <%= p.nama %>?');">
+                        <button type="submit" title="Hapus Petugas"
+                          class="p-1.5 bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-600 rounded-lg transition">
+                          <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<%- include('../../layouts/footer') %>

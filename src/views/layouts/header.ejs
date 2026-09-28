@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= title %> | E-UKS & Rekam Medis</title>
+  <title><%= (typeof title !== 'undefined' && title) ? title : 'E-UKS' %> | E-UKS & Rekam Medis</title>
   
   <!-- Tailwind CSS & Inter Font -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -13,6 +13,9 @@
   
   <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
     body { font-family: 'Inter', sans-serif; }
@@ -30,4 +33,4 @@
     }
   </style>
 </head>
-<body class="h-full text-slate-800 antialiased flex flex-col md:flex-row">
+<body class="min-h-screen bg-slate-50 text-slate-800 antialiased flex flex-col md:flex-row relative overflow-x-hidden">

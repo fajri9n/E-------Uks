@@ -4,7 +4,7 @@
 <div class="flex-1 flex flex-col min-w-0 overflow-y-auto">
   <%- include('../layouts/topbar') %>
 
-  <main class="p-6 space-y-6">
+  <main class="p-4 sm:p-6 space-y-6">
     <div>
       <h2 class="text-xl font-bold text-slate-800">Status Izin Istirahat UKS Digital</h2>
       <p class="text-xs text-slate-500">Pantau keabsahan surat izin istirahat di UKS / rujukan pulang yang telah diterbitkan oleh petugas medis</p>
@@ -36,7 +36,7 @@
                   <span class="px-3 py-1 bg-amber-100 text-amber-800 rounded-full font-bold text-xs">DIRAWAT DI BED UKS</span>
                 <% } %>
 
-                <a href="/petugas/permit/<%= p.id %>/print" target="_blank"
+                <a href="/permit/<%= p.id %>/print" target="_blank"
                   class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-xl border border-emerald-200 transition flex items-center gap-1">
                   <i data-lucide="printer" class="w-3.5 h-3.5"></i>
                   <span>Lihat Surat</span>

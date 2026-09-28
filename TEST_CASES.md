@@ -99,8 +99,51 @@ Dokumen ini berisi 5 Skenario Pengujian Utama (Standar UKK / Industri) beserta l
 
 ---
 
+#### 6. Skenario 6: Admin UKS Melihat & Menambahkan Akun Petugas UKS Baru
+- **Aktor:** Admin UKS
+- **Rute/Halaman:** `/admin/petugas` & `/admin/petugas/create`
+- **Langkah Pengujian:**
+  1. Login sebagai Admin UKS (`adminuks` / `password123`).
+  2. Buka menu **Akun Petugas UKS** di sidebar.
+  3. Klik tombol **+ Tambah Petugas Baru**.
+  4. Isi data: Nama Lengkap, Username, Password, dan Kontak No. HP.
+  5. Klik **Simpan Akun Petugas**.
+- **Hasil yang Diharapkan:**
+  Akun petugas baru terdaftar dengan role `PETUGAS_UKS`, password ter-hash secara aman, dan langsung dapat digunakan login.
+- **Status Verifikasi:** `[LULUS / PASSED]`
+
+---
+
+#### 7. Skenario 7: Admin UKS Mengelola Akun Siswa & Profil Alergi
+- **Aktor:** Admin UKS
+- **Rute/Halaman:** `/admin/siswa` & `/admin/siswa/create`
+- **Langkah Pengujian:**
+  1. Buka menu **Akun Siswa** di sidebar Admin UKS.
+  2. Klik tombol **+ Tambah Siswa Baru**.
+  3. Input Nama, NISN, Golongan Darah, Telepon Orang Tua, serta Profil Kesehatan (Alergi Obat, Penyakit Bawaan, Alergi Makanan, Kontak Darurat).
+  4. Klik **Simpan Data Siswa**.
+- **Hasil yang Diharapkan:**
+  Data siswa tersimpan bersama entitas relasi `HealthProfile`, dan tampil di daftar akun siswa.
+- **Status Verifikasi:** `[LULUS / PASSED]`
+
+---
+
+#### 8. Skenario 8: Petugas UKS Menambahkan Siswa & Memantau Grafik Siswa Sakit Bulan Ini
+- **Aktor:** Petugas UKS
+- **Rute/Halaman:** `/petugas/dashboard`, `/petugas/siswa`, & `/petugas/siswa/create`
+- **Langkah Pengujian:**
+  1. Login sebagai Petugas UKS (`petugasuks` / `password123`).
+  2. Di **Dashboard Petugas**, periksa card visual: **Grafik Tren Siswa Sakit Bulan Ini** (Chart.js interaktif) beserta ringkasan status penanganan.
+  3. Buka menu **Data & Tambah Siswa** (`/petugas/siswa`) -> klik **Tambah Siswa Baru**.
+  4. Daftarkan siswa baru yang datang berobat, centang opsi *Langsung daftarkan kunjungan UKS*.
+- **Hasil yang Diharapkan:**
+  Grafik menampilkan tren kunjungan siswa sakit harian pada bulan berjalan secara akurat, dan siswa baru langsung terhubung ke modul pemeriksaan UKS.
+- **Status Verifikasi:** `[LULUS / PASSED]`
+
+---
+
 ### 🛡 MATRIKS OTORISASI KEAMANAN RBAC (HTTP 403 FORBIDDEN TEST)
 
-- Jika `SISWA` mencoba membuka rute `/admin/medicines` -> Terjadi blokir otomatis HTTP **403 Forbidden** ("Role Anda (SISWA) tidak memiliki wewenang untuk mengakses halaman ini").
-- Jika `PETUGAS_UKS` mencoba membuka rute `/admin/medicines` -> Terjadi blokir otomatis HTTP **403 Forbidden**.
-- Jika `SISWA` mencoba membuka rute `/petugas/visits` -> Terjadi blokir otomatis HTTP **403 Forbidden**.
+- Jika `SISWA` mencoba membuka rute `/admin/medicines`, `/admin/petugas`, atau `/admin/siswa` -> Terjadi blokir otomatis HTTP **403 Forbidden**.
+- Jika `PETUGAS_UKS` mencoba membuka rute `/admin/petugas` atau `/admin/siswa` -> Terjadi blokir otomatis HTTP **403 Forbidden**.
+- Jika `SISWA` mencoba membuka rute `/petugas/visits` atau `/petugas/siswa` -> Terjadi blokir otomatis HTTP **403 Forbidden**.

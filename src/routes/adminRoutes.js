@@ -21,4 +21,20 @@ router.post('/medicines/:id/delete', adminController.postDeleteMedicine);
 // Feature #3: Monitoring Kadaluarsa & Ambang Batas Stok Obat
 router.get('/stock-alerts', adminController.getStockAlerts);
 
+// Fitur: Manajemen Akun Petugas UKS (Lihat & Tambah Petugas)
+router.get('/petugas', adminController.getPetugas);
+router.get('/petugas/create', adminController.getCreatePetugas);
+router.post('/petugas/create', adminController.postCreatePetugas);
+router.get('/petugas/:id/edit', adminController.getEditPetugas);
+router.post('/petugas/:id/edit', adminController.postEditPetugas);
+router.post('/petugas/:id/delete', adminController.postDeletePetugas);
+
+// Fitur: Manajemen Akun Siswa (Lihat & Tambah Akun Siswa)
+router.get('/siswa', adminController.getSiswa);
+router.get('/siswa/create', adminController.getCreateSiswa);
+router.post('/siswa/create', adminController.postCreateSiswa);
+router.get('/siswa/:id/edit', adminController.getEditSiswa);
+router.post('/siswa/:id/edit', adminController.postEditSiswa);
+router.post('/siswa/:id/delete', adminController.postDeleteSiswa);
+
 module.exports = router;

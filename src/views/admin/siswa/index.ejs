@@ -1,0 +1,147 @@
+<%- include('../../layouts/header') %>
+<%- include('../../layouts/sidebar') %>
+
+<div class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+  <%- include('../../layouts/topbar') %>
+
+  <main class="p-4 sm:p-6 space-y-4 sm:space-y-6">
+    <!-- Header & Action Button -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <h2 class="text-xl font-bold text-slate-800">Manajemen Akun Siswa</h2>
+        <p class="text-xs text-slate-500">Kelola data siswa, NISN, riwayat alergi obat/makanan, dan akses login siswa</p>
+      </div>
+
+      <a href="/admin/siswa/create"
+        class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold text-xs rounded-xl shadow-md shadow-emerald-600/20 transition">
+        <i data-lucide="user-plus" class="w-4 h-4"></i>
+        <span>Tambah Siswa Baru</span>
+      </a>
+    </div>
+
+    <!-- Alert Notices -->
+    <% if (success) { %>
+      <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center gap-3 text-emerald-800 text-sm">
+        <i data-lucide="check-circle" class="w-5 h-5 flex-shrink-0 text-emerald-600"></i>
+        <span><%= success %></span>
+      </div>
+    <% } %>
+
+    <% if (error) { %>
+      <div class="p-4 bg-rose-50 border border-rose-200 rounded-2xl flex items-center gap-3 text-rose-800 text-sm">
+        <i data-lucide="alert-triangle" class="w-5 h-5 flex-shrink-0 text-rose-600"></i>
+        <span><%= error %></span>
+      </div>
+    <% } %>
+
+    <!-- Filter & Search Bar -->
+    <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
+      <form action="/admin/siswa" method="GET" class="flex flex-col sm:flex-row gap-3">
+        <div class="flex-1 relative">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+          <input type="text" name="search" value="<%= search %>" placeholder="Cari nama siswa, NISN, atau username..."
+            class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/30">
+        </div>
+
+        <button type="submit" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-xl transition">
+          Cari
+        </button>
+      </form>
+    </div>
+
+    <!-- Table Siswa -->
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-[750px] text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200/80 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              <th class="py-3.5 px-4">Nama Siswa</th>
+              <th class="py-3.5 px-4">NISN</th>
+              <th class="py-3.5 px-4">Username Login</th>
+              <th class="py-3.5 px-4 text-center">Gol. Darah</th>
+              <th class="py-3.5 px-4">Riwayat Alergi & Penyakit</th>
+              <th class="py-3.5 px-4">Kontak Ortu</th>
+              <th class="py-3.5 px-4 text-center">Riwayat Berobat</th>
+              <th class="py-3.5 px-4 text-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-xs">
+            <% if (siswaList.length === 0) { %>
+              <tr>
+                <td colspan="8" class="py-8 text-center text-slate-400">Belum ada akun siswa yang terdaftar.</td>
+              </tr>
+            <% } else { %>
+              <% siswaList.forEach(s => { %>
+                <tr class="hover:bg-slate-50/70 transition">
+                  <td class="py-3.5 px-4 font-semibold text-slate-800 flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs flex-shrink-0">
+                      <%= s.nama.charAt(0) %>
+                    </div>
+                    <span><%= s.nama %></span>
+                  </td>
+                  <td class="py-3.5 px-4 font-mono font-medium text-slate-700">
+                    <%= s.nisn || '-' %>
+                  </td>
+                  <td class="py-3.5 px-4 font-mono text-slate-500">
+                    @<%= s.username %>
+                  </td>
+                  <td class="py-3.5 px-4 text-center">
+                    <span class="inline-block px-2 py-0.5 bg-slate-100 font-bold text-slate-700 rounded-md text-[11px]">
+                      <%= s.golonganDarah || '-' %>
+                    </span>
+                  </td>
+                  <td class="py-3.5 px-4">
+                    <% if (s.healthProfile) { %>
+                      <div class="space-y-0.5">
+                        <% if (s.healthProfile.alergiObat && s.healthProfile.alergiObat !== 'Tidak Ada') { %>
+                          <span class="inline-block px-1.5 py-0.5 bg-rose-100 text-rose-700 text-[10px] font-bold rounded">
+                            Alergi Obat: <%= s.healthProfile.alergiObat %>
+                          </span>
+                        <% } %>
+                        <% if (s.healthProfile.riwayatPenyakit && s.healthProfile.riwayatPenyakit !== 'Tidak Ada') { %>
+                          <span class="inline-block px-1.5 py-0.5 bg-amber-100 text-amber-800 text-[10px] font-medium rounded">
+                            Penyakit: <%= s.healthProfile.riwayatPenyakit %>
+                          </span>
+                        <% } %>
+                        <% if ((!s.healthProfile.alergiObat || s.healthProfile.alergiObat === 'Tidak Ada') && (!s.healthProfile.riwayatPenyakit || s.healthProfile.riwayatPenyakit === 'Tidak Ada')) { %>
+                          <span class="text-slate-400 text-[11px]">Sehat / Tanpa catatan</span>
+                        <% } %>
+                      </div>
+                    <% } else { %>
+                      <span class="text-slate-400 text-[11px]">-</span>
+                    <% } %>
+                  </td>
+                  <td class="py-3.5 px-4 text-slate-600">
+                    <%= s.teleponOrtu || '-' %>
+                  </td>
+                  <td class="py-3.5 px-4 text-center">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700">
+                      <%= s._count ? s._count.medicalRecordsAsStudent : 0 %> kali
+                    </span>
+                  </td>
+                  <td class="py-3.5 px-4 text-center whitespace-nowrap">
+                    <div class="flex items-center justify-center gap-2">
+                      <a href="/admin/siswa/<%= s.id %>/edit" title="Edit Siswa"
+                        class="p-1.5 bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-slate-600 rounded-lg transition">
+                        <i data-lucide="edit-3" class="w-4 h-4"></i>
+                      </a>
+                      <form action="/admin/siswa/<%= s.id %>/delete" method="POST" class="inline"
+                        onsubmit="return confirm('Hapus akun siswa <%= s.nama %>? Seluruh rekam medis terkait akan terhapus.');">
+                        <button type="submit" title="Hapus Siswa"
+                          class="p-1.5 bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-600 rounded-lg transition">
+                          <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<%- include('../../layouts/footer') %>

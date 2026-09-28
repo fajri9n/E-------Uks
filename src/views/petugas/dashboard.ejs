@@ -4,7 +4,7 @@
 <div class="flex-1 flex flex-col min-w-0 overflow-y-auto">
   <%- include('../layouts/topbar') %>
 
-  <main class="p-6 space-y-6">
+  <main class="p-4 sm:p-6 space-y-6">
     <!-- Header Quick Action -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gradient-to-r from-emerald-600 to-teal-700 text-white p-6 rounded-3xl shadow-lg shadow-emerald-900/10">
       <div>
@@ -52,6 +52,100 @@
       </div>
     </div>
 
+    <!-- Grafik & Analitik Banyaknya Siswa Sakit di Bulan Ini -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- Chart Card (2 cols) -->
+      <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm lg:col-span-2">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <h3 class="text-base font-bold text-slate-800">
+                Grafik Tren Siswa Sakit Bulan <%= monthlySickAnalytics.currentMonthName %> <%= monthlySickAnalytics.currentYear %>
+              </h3>
+            </div>
+            <p class="text-xs text-slate-500 mt-0.5">Jumlah siswa yang datang berobat ke UKS per hari pada bulan ini</p>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <span class="px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200/60 rounded-xl text-xs font-bold">
+              Total: <%= monthlySickAnalytics.totalSickThisMonth %> Kasus
+            </span>
+            <a href="/petugas/reports" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-medium transition">
+              Rekap Bulanan &rarr;
+            </a>
+          </div>
+        </div>
+
+        <!-- Canvas Chart -->
+        <div class="relative w-full h-72">
+          <canvas id="monthlySickChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Ringkasan Statistik Bulan Ini (1 col) -->
+      <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+        <div>
+          <h3 class="text-sm font-bold text-slate-800 mb-1">Ringkasan Bulan Ini</h3>
+          <p class="text-xs text-slate-500 mb-5">Statistik penanganan & riwayat pasien UKS</p>
+
+          <div class="space-y-4">
+            <!-- Total Sakit Bulan Ini -->
+            <div class="p-4 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-100 flex items-center justify-between">
+              <div>
+                <p class="text-[11px] font-bold text-emerald-800 uppercase tracking-wider">Total Kunjungan Sakit</p>
+                <h4 class="text-2xl font-bold text-emerald-900 mt-0.5"><%= monthlySickAnalytics.totalSickThisMonth %> <span class="text-xs font-medium text-emerald-700">kali berobat</span></h4>
+                <p class="text-[11px] text-emerald-700 mt-1"><%= monthlySickAnalytics.uniqueSickStudentsThisMonth %> siswa berbeda</p>
+              </div>
+              <div class="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-md shadow-emerald-600/30">
+                <i data-lucide="activity" class="w-6 h-6"></i>
+              </div>
+            </div>
+
+            <!-- Breakdown Penanganan Medis Bulan Ini -->
+            <div>
+              <p class="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2.5">Distribusi Penanganan</p>
+              <div class="space-y-2 text-xs">
+                <div class="flex items-center justify-between py-1.5 px-3 bg-amber-50/60 rounded-xl border border-amber-100">
+                  <span class="flex items-center gap-2 text-amber-900 font-medium">
+                    <span class="w-2 h-2 rounded-full bg-amber-500"></span> Dirawat Bed UKS
+                  </span>
+                  <span class="font-bold text-amber-900"><%= monthlySickAnalytics.statusCounts.DIRAWAT %> kasus</span>
+                </div>
+                <div class="flex items-center justify-between py-1.5 px-3 bg-emerald-50/60 rounded-xl border border-emerald-100">
+                  <span class="flex items-center gap-2 text-emerald-900 font-medium">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Kembali ke Kelas
+                  </span>
+                  <span class="font-bold text-emerald-900"><%= monthlySickAnalytics.statusCounts.KEMBALI_KELAS %> kasus</span>
+                </div>
+                <div class="flex items-center justify-between py-1.5 px-3 bg-purple-50/60 rounded-xl border border-purple-100">
+                  <span class="flex items-center gap-2 text-purple-900 font-medium">
+                    <span class="w-2 h-2 rounded-full bg-purple-500"></span> Izin Pulang
+                  </span>
+                  <span class="font-bold text-purple-900"><%= monthlySickAnalytics.statusCounts.PULANG %> kasus</span>
+                </div>
+                <div class="flex items-center justify-between py-1.5 px-3 bg-rose-50/60 rounded-xl border border-rose-100">
+                  <span class="flex items-center gap-2 text-rose-900 font-medium">
+                    <span class="w-2 h-2 rounded-full bg-rose-500"></span> Rujukan Faskes
+                  </span>
+                  <span class="font-bold text-rose-900"><%= monthlySickAnalytics.statusCounts.DIRUJUK %> kasus</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 mt-4">
+          <a href="/petugas/siswa/create" class="w-full py-2.5 px-4 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-xl flex items-center justify-center gap-2 transition">
+            <i data-lucide="user-plus" class="w-4 h-4"></i>
+            Tambah Siswa Baru
+          </a>
+        </div>
+      </div>
+
+    </div>
+
     <!-- Live Active UKS Visits Table -->
     <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6">
       <div class="flex justify-between items-center mb-4">
@@ -63,7 +157,7 @@
       </div>
 
       <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
+        <table class="w-full min-w-[700px] text-left border-collapse">
           <thead>
             <tr class="border-b border-slate-100 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
               <th class="py-3 px-3">Waktu & Tgl</th>
@@ -88,9 +182,9 @@
                   </td>
 
                   <td class="py-3.5 px-3 font-semibold text-slate-800">
-                    <%= v.student.nama %>
-                    <span class="text-slate-400 text-[11px] block">GolDarah: <%= v.student.golonganDarah || '-' %></span>
-                    <% if (v.student.healthProfile && v.student.healthProfile.alergiObat && v.student.healthProfile.alergiObat !== 'Tidak Ada' && v.student.healthProfile.alergiObat !== 'Belum diisi') { %>
+                    <%= v.student ? v.student.nama : 'Siswa' %>
+                    <span class="text-slate-400 text-[11px] block">GolDarah: <%= v.student ? (v.student.golonganDarah || '-') : '-' %></span>
+                    <% if (v.student && v.student.healthProfile && v.student.healthProfile.alergiObat && v.student.healthProfile.alergiObat !== 'Tidak Ada' && v.student.healthProfile.alergiObat !== 'Belum diisi') { %>
                       <span class="inline-block mt-0.5 px-1.5 py-0.5 bg-rose-100 text-rose-700 text-[10px] font-bold rounded">
                         ⚠ Alergi: <%= v.student.healthProfile.alergiObat %>
                       </span>
@@ -115,7 +209,7 @@
                       <div class="mt-1 space-y-0.5">
                         <% v.prescriptions.forEach(p => { %>
                           <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200/60 rounded text-[10px] font-medium">
-                            <i data-lucide="pill" class="w-3 h-3"></i> <%= p.medicine.namaObat %> (<%= p.jumlah %> <%= p.medicine.satuan %>)
+                            <i data-lucide="pill" class="w-3 h-3"></i> <%= p.medicine ? p.medicine.namaObat : 'Obat' %> (<%= p.jumlah %> <%= p.medicine ? p.medicine.satuan : 'Item' %>)
                           </span>
                         <% }); %>
                       </div>
@@ -141,7 +235,7 @@
                         <i data-lucide="stethoscope" class="w-4 h-4"></i>
                       </a>
                       <% if (v.status === 'PULANG' || v.status === 'DIRUJUK') { %>
-                        <a href="/petugas/permit/<%= v.id %>/print" target="_blank" title="Cetak Surat Izin Digital"
+                        <a href="/permit/<%= v.id %>/print" target="_blank" title="Cetak Surat Izin Digital"
                           class="p-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg transition">
                           <i data-lucide="printer" class="w-4 h-4"></i>
                         </a>
@@ -157,5 +251,98 @@
     </div>
   </main>
 </div>
+
+<!-- Data Payload untuk Grafik Chart.js (Valid HTML5 JSON Data) -->
+<script id="monthlySickChartPayload" type="application/json">
+  <%- JSON.stringify({
+    labels: monthlySickAnalytics.chartLabels,
+    data: monthlySickAnalytics.chartData
+  }) %>
+</script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const chartCanvas = document.getElementById('monthlySickChart');
+    const payloadElement = document.getElementById('monthlySickChartPayload');
+    if (!chartCanvas || !payloadElement || typeof Chart === 'undefined') return;
+
+    let chartData = { labels: [], data: [] };
+    try {
+      chartData = JSON.parse(payloadElement.textContent);
+    } catch (err) {
+      console.warn('Gagal membaca data grafik UKS:', err);
+    }
+
+    const ctx = chartCanvas.getContext('2d');
+    const gradient = ctx.createLinearGradient(0, 0, 0, 250);
+    gradient.addColorStop(0, 'rgba(16, 185, 129, 0.45)');
+    gradient.addColorStop(1, 'rgba(16, 185, 129, 0.02)');
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: chartData.labels,
+        datasets: [{
+          label: 'Siswa Sakit',
+          data: chartData.data,
+          borderColor: '#059669',
+          backgroundColor: gradient,
+          borderWidth: 2.5,
+          fill: true,
+          tension: 0.35,
+          pointBackgroundColor: '#059669',
+          pointBorderColor: '#ffffff',
+          pointBorderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#0f172a',
+            titleFont: { family: 'Inter', size: 12, weight: 'bold' },
+            bodyFont: { family: 'Inter', size: 12 },
+            padding: 10,
+            cornerRadius: 10,
+            displayColors: false,
+            callbacks: {
+              label: function(context) {
+                return `${context.parsed.y} siswa berobat ke UKS`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: {
+              font: { family: 'Inter', size: 10 },
+              maxRotation: 45,
+              autoSkip: true,
+              maxTicksLimit: 16,
+              color: '#64748b'
+            }
+          },
+          y: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 1,
+              precision: 0,
+              font: { family: 'Inter', size: 10 },
+              color: '#64748b'
+            },
+            grid: {
+              color: '#f1f5f9'
+            }
+          }
+        }
+      }
+    });
+  });
+</script>
 
 <%- include('../layouts/footer') %>

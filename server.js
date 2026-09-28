@@ -34,9 +34,10 @@ app.use(
   })
 );
 
-// Global user variable for EJS views
+// Global user & title variable for EJS views
 app.use((req, res, next) => {
   res.locals.user = req.session.user || null;
+  res.locals.title = 'E-UKS & Rekam Medis';
   next();
 });
 

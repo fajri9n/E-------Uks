@@ -1,6 +1,50 @@
-  <!-- Lucide icons init -->
+  <!-- Mobile Drawer Script & Lucide Init -->
   <script>
+    // Initialize icons
     lucide.createIcons();
+
+    // Mobile Sidebar Drawer Management
+    const openSidebarBtn = document.getElementById('openSidebarBtn');
+    const closeSidebarBtn = document.getElementById('closeSidebarBtn');
+    const appSidebar = document.getElementById('appSidebar');
+    const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+
+    function openMobileSidebar() {
+      if (appSidebar && sidebarBackdrop) {
+        appSidebar.classList.remove('-translate-x-full');
+        sidebarBackdrop.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden');
+      }
+    }
+
+    function closeMobileSidebar() {
+      if (appSidebar && sidebarBackdrop) {
+        appSidebar.classList.add('-translate-x-full');
+        sidebarBackdrop.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+      }
+    }
+
+    if (openSidebarBtn) openSidebarBtn.addEventListener('click', openMobileSidebar);
+    if (closeSidebarBtn) closeSidebarBtn.addEventListener('click', closeMobileSidebar);
+    if (sidebarBackdrop) sidebarBackdrop.addEventListener('click', closeMobileSidebar);
+
+    // Close sidebar on ESC
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeMobileSidebar();
+    });
+
+    // Auto close sidebar when a navigation link is clicked on mobile
+    if (appSidebar) {
+      const navLinks = appSidebar.querySelectorAll('nav a');
+      navLinks.forEach((link) => {
+        link.addEventListener('click', () => {
+          if (window.innerWidth < 768) {
+            closeMobileSidebar();
+          }
+        });
+      });
+    }
   </script>
 </body>
 </html>

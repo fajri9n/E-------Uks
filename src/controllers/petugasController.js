@@ -1,4 +1,5 @@
 const prisma = require('../config/database');
+const bcrypt = require('bcryptjs');
 
 // Dashboard Petugas UKS
 const getDashboard = async (req, res) => {
@@ -17,6 +18,68 @@ const getDashboard = async (req, res) => {
     const totalStudents = await prisma.user.count({
       where: { role: 'SISWA' },
     });
+
+    // Analitik Bulan Ini (Banyaknya siswa yang sakit di bulan ini)
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth(); // 0-indexed
+    const startOfMonth = new Date(currentYear, currentMonth, 1, 0, 0, 0, 0);
+    const endOfMonth = new Date(currentYear, currentMonth + 1, 0, 23, 59, 59, 999);
+
+    const monthlyVisits = await prisma.medicalRecord.findMany({
+      where: {
+        tglKunjungan: {
+          gte: startOfMonth,
+          lte: endOfMonth,
+        },
+      },
+      orderBy: { tglKunjungan: 'asc' },
+      include: {
+        student: true,
+      },
+    });
+
+    const totalSickThisMonth = monthlyVisits.length;
+    const uniqueSickStudentIds = new Set(monthlyVisits.map((v) => v.studentId));
+    const uniqueSickStudentsThisMonth = uniqueSickStudentIds.size;
+
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    const monthNames = [
+      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+    const monthShortNames = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+      'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
+    ];
+    const currentMonthName = monthNames[currentMonth];
+    const currentMonthShort = monthShortNames[currentMonth];
+
+    const dailyCounts = {};
+    for (let d = 1; d <= daysInMonth; d++) {
+      dailyCounts[d] = 0;
+    }
+
+    monthlyVisits.forEach((v) => {
+      const day = new Date(v.tglKunjungan).getDate();
+      if (dailyCounts[day] !== undefined) {
+        dailyCounts[day]++;
+      }
+    });
+
+    const chartLabels = [];
+    const chartData = [];
+    for (let d = 1; d <= daysInMonth; d++) {
+      chartLabels.push(`${d} ${currentMonthShort}`);
+      chartData.push(dailyCounts[d]);
+    }
+
+    const monthlyStatusCounts = {
+      DIRAWAT: monthlyVisits.filter((v) => v.status === 'DIRAWAT').length,
+      KEMBALI_KELAS: monthlyVisits.filter((v) => v.status === 'KEMBALI_KELAS').length,
+      PULANG: monthlyVisits.filter((v) => v.status === 'PULANG').length,
+      DIRUJUK: monthlyVisits.filter((v) => v.status === 'DIRUJUK').length,
+    };
 
     const recentVisits = await prisma.medicalRecord.findMany({
       take: 8,
@@ -39,6 +102,15 @@ const getDashboard = async (req, res) => {
         visitsToday,
         activePatients,
         totalStudents,
+      },
+      monthlySickAnalytics: {
+        currentMonthName,
+        currentYear,
+        totalSickThisMonth,
+        uniqueSickStudentsThisMonth,
+        chartLabels,
+        chartData,
+        statusCounts: monthlyStatusCounts,
       },
       recentVisits,
     });
@@ -120,11 +192,14 @@ const getCreateVisit = async (req, res) => {
       orderBy: { namaObat: 'asc' },
     });
 
+    const selectedStudentId = req.query.studentId ? parseInt(req.query.studentId, 10) : null;
+
     res.render('petugas/visits/create', {
       title: 'Registrasi Kunjungan Siswa Masuk UKS',
       user: req.session.user,
       students,
       medicines,
+      selectedStudentId,
       error: req.query.error || null,
     });
   } catch (err) {
@@ -153,11 +228,14 @@ const postCreateVisit = async (req, res) => {
 
     const parsedStudentId = parseInt(studentId, 10);
     const petugasId = req.session.user.id;
+    const medRaw = req.body.medicineId || req.body['medicineId[]'];
+    const qtyRaw = req.body.jumlah || req.body['jumlah[]'];
+    const doseRaw = req.body.dosis || req.body['dosis[]'];
 
     // Handle medicine array / single item
-    const medicineIds = Array.isArray(medicineId) ? medicineId : medicineId ? [medicineId] : [];
-    const jumlahs = Array.isArray(jumlah) ? jumlah : jumlah ? [jumlah] : [];
-    const dosises = Array.isArray(dosis) ? dosis : dosis ? [dosis] : [];
+    const medicineIds = Array.isArray(medRaw) ? medRaw : medRaw ? [medRaw] : [];
+    const jumlahs = Array.isArray(qtyRaw) ? qtyRaw : qtyRaw ? [qtyRaw] : [];
+    const dosises = Array.isArray(doseRaw) ? doseRaw : doseRaw ? [doseRaw] : [];
 
     // Execute within Prisma transaction to guarantee atomic stock reduction & record creation
     await prisma.$transaction(async (tx) => {
@@ -260,11 +338,14 @@ const getExamineVisit = async (req, res) => {
 const postUpdateVisit = async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
-    const { jamKeluar, keluhan, suhuTubuh, tensi, tindakan, status, catatanSurat, medicineId, jumlah, dosis } = req.body;
+    const { jamKeluar, keluhan, suhuTubuh, tensi, tindakan, status, catatanSurat } = req.body;
+    const medRaw = req.body.medicineId || req.body['medicineId[]'];
+    const qtyRaw = req.body.jumlah || req.body['jumlah[]'];
+    const doseRaw = req.body.dosis || req.body['dosis[]'];
 
-    const medicineIds = Array.isArray(medicineId) ? medicineId : medicineId ? [medicineId] : [];
-    const jumlahs = Array.isArray(jumlah) ? jumlah : jumlah ? [jumlah] : [];
-    const dosises = Array.isArray(dosis) ? dosis : dosis ? [dosis] : [];
+    const medicineIds = Array.isArray(medRaw) ? medRaw : medRaw ? [medRaw] : [];
+    const jumlahs = Array.isArray(qtyRaw) ? qtyRaw : qtyRaw ? [qtyRaw] : [];
+    const dosises = Array.isArray(doseRaw) ? doseRaw : doseRaw ? [doseRaw] : [];
 
     await prisma.$transaction(async (tx) => {
       // Update record details
@@ -432,6 +513,138 @@ const getPrintMonthlyReport = async (req, res) => {
   }
 };
 
+// ==========================================
+// FITUR DATA & TAMBAH SISWA (ROLE PETUGAS)
+// ==========================================
+
+const getSiswa = async (req, res) => {
+  try {
+    const { search } = req.query;
+    const where = { role: 'SISWA' };
+
+    if (search) {
+      where.OR = [
+        { nama: { contains: search } },
+        { nisn: { contains: search } },
+        { username: { contains: search } },
+      ];
+    }
+
+    const students = await prisma.user.findMany({
+      where,
+      orderBy: { nama: 'asc' },
+      include: {
+        healthProfile: true,
+        _count: {
+          select: { medicalRecordsAsStudent: true },
+        },
+      },
+    });
+
+    res.render('petugas/siswa/index', {
+      title: 'Data Siswa & Profil Kesehatan',
+      user: req.session.user,
+      students,
+      search: search || '',
+      success: req.query.success || null,
+      error: req.query.error || null,
+    });
+  } catch (err) {
+    console.error('Petugas Get Siswa Error:', err);
+    res.status(500).send('Internal Server Error');
+  }
+};
+
+const getCreateSiswa = (req, res) => {
+  res.render('petugas/siswa/create', {
+    title: 'Daftarkan Siswa Baru di UKS',
+    user: req.session.user,
+    error: req.query.error || null,
+  });
+};
+
+const postCreateSiswa = async (req, res) => {
+  try {
+    const {
+      nama,
+      nisn,
+      username,
+      password,
+      golonganDarah,
+      teleponOrtu,
+      riwayatPenyakit,
+      alergiObat,
+      alergiMakanan,
+      kontakDarurat,
+      catatKunjungan,
+    } = req.body;
+
+    if (!nama) {
+      return res.redirect('/petugas/siswa/create?error=Nama+siswa+wajib+diisi');
+    }
+
+    let cleanUsername = username ? username.trim().toLowerCase() : '';
+    if (!cleanUsername) {
+      if (nisn && nisn.trim() !== '') {
+        cleanUsername = nisn.trim();
+      } else {
+        cleanUsername = 'siswa_' + nama.trim().toLowerCase().replace(/[^a-z0-9]/g, '') + Math.floor(100 + Math.random() * 900);
+      }
+    }
+
+    const existingUser = await prisma.user.findUnique({
+      where: { username: cleanUsername },
+    });
+    if (existingUser) {
+      return res.redirect('/petugas/siswa/create?error=Username+' + encodeURIComponent(cleanUsername) + '+sudah+digunakan,+silakan+ganti');
+    }
+
+    const cleanNisn = nisn && nisn.trim() !== '' ? nisn.trim() : null;
+    if (cleanNisn) {
+      const existingNisn = await prisma.user.findUnique({
+        where: { nisn: cleanNisn },
+      });
+      if (existingNisn) {
+        return res.redirect('/petugas/siswa/create?error=NISN+sudah+terdaftar+dalam+sistem');
+      }
+    }
+
+    const defaultPass = password && password.trim() !== '' ? password.trim() : 'password123';
+    const hashedPassword = await bcrypt.hash(defaultPass, 10);
+
+    const newStudent = await prisma.user.create({
+      data: {
+        nama: nama.trim(),
+        username: cleanUsername,
+        password: hashedPassword,
+        role: 'SISWA',
+        nisn: cleanNisn,
+        golonganDarah: golonganDarah || null,
+        teleponOrtu: teleponOrtu ? teleponOrtu.trim() : null,
+      },
+    });
+
+    await prisma.healthProfile.create({
+      data: {
+        studentId: newStudent.id,
+        riwayatPenyakit: riwayatPenyakit ? riwayatPenyakit.trim() : 'Tidak Ada',
+        alergiObat: alergiObat ? alergiObat.trim() : 'Tidak Ada',
+        alergiMakanan: alergiMakanan ? alergiMakanan.trim() : 'Tidak Ada',
+        kontakDarurat: kontakDarurat ? kontakDarurat.trim() : (teleponOrtu ? `Ortu (${teleponOrtu.trim()})` : '-'),
+      },
+    });
+
+    if (catatKunjungan === '1' || catatKunjungan === 'on' || catatKunjungan === true) {
+      return res.redirect(`/petugas/visits/create?studentId=${newStudent.id}`);
+    }
+
+    res.redirect('/petugas/siswa?success=Siswa+' + encodeURIComponent(newStudent.nama) + '+berhasil+didaftarkan');
+  } catch (err) {
+    console.error('Petugas Post Create Siswa Error:', err);
+    res.redirect('/petugas/siswa/create?error=Gagal+mendaftarkan+siswa');
+  }
+};
+
 module.exports = {
   getDashboard,
   getVisits,
@@ -442,4 +655,8 @@ module.exports = {
   getPrintPermit,
   getMonthlyReports,
   getPrintMonthlyReport,
+  // Siswa Management for Petugas
+  getSiswa,
+  getCreateSiswa,
+  postCreateSiswa,
 };

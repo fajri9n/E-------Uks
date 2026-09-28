@@ -4,7 +4,7 @@
 <div class="flex-1 flex flex-col min-w-0 overflow-y-auto">
   <%- include('../layouts/topbar') %>
 
-  <main class="p-6 space-y-6">
+  <main class="p-4 sm:p-6 space-y-4 sm:space-y-6">
     <!-- Header & Print Trigger -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
@@ -13,7 +13,7 @@
       </div>
 
       <a href="/petugas/reports/print?month=<%= month %>&year=<%= year %>" target="_blank"
-        class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-xl shadow transition">
+        class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-xl shadow transition">
         <i data-lucide="printer" class="w-4 h-4"></i>
         <span>Cetak Laporan Resmi (PDF/Print)</span>
       </a>
@@ -48,7 +48,7 @@
     </div>
 
     <!-- Rekap Stats Summary Cards -->
-    <div class="grid grid-cols-2 sm:grid-cols-5 gap-4">
+    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4">
       <div class="bg-white p-4 rounded-xl border border-slate-200/80 text-center">
         <span class="text-[10px] font-bold text-slate-400 uppercase">Total Kunjungan</span>
         <h4 class="text-xl font-bold text-slate-800 mt-1"><%= summary.totalKunjungan %></h4>
@@ -65,7 +65,7 @@
         <span class="text-[10px] font-bold text-purple-700 uppercase">Izin Pulang</span>
         <h4 class="text-xl font-bold text-purple-800 mt-1"><%= summary.countPulang %></h4>
       </div>
-      <div class="bg-rose-50 p-4 rounded-xl border border-rose-200/80 text-center">
+      <div class="bg-rose-50 p-4 rounded-xl border border-rose-200/80 text-center col-span-2 sm:col-span-1">
         <span class="text-[10px] font-bold text-rose-700 uppercase">Dirujuk Faskes</span>
         <h4 class="text-xl font-bold text-rose-800 mt-1"><%= summary.countDirujuk %></h4>
       </div>
@@ -74,7 +74,7 @@
     <!-- Detailed Table -->
     <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
       <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
+        <table class="w-full min-w-[750px] text-left border-collapse">
           <thead>
             <tr class="bg-slate-50 border-b border-slate-200/80 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
               <th class="py-3.5 px-4 text-center">No</th>

@@ -21,6 +21,11 @@ router.post('/visits/:id/examine', petugasController.postUpdateVisit);
 // Feature #8: Terbitkan Surat Izin Istirahat / Rujukan Pulang Digital
 router.get('/permit/:id/print', petugasController.getPrintPermit);
 
+// Feature: Manajemen & Tambah Siswa Baru oleh Petugas UKS
+router.get('/siswa', petugasController.getSiswa);
+router.get('/siswa/create', petugasController.getCreateSiswa);
+router.post('/siswa/create', petugasController.postCreateSiswa);
+
 // Feature #9: Cetak Laporan Rekapitulasi Kunjungan UKS Bulanan
 router.get('/reports', petugasController.getMonthlyReports);
 router.get('/reports/print', petugasController.getPrintMonthlyReport);
